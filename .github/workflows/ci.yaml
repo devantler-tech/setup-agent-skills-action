@@ -29,7 +29,7 @@ jobs:
           persist-credentials: false
       - name: "\U0001F9EA Run setup-agent-skills"
         id: setup
-        uses: ./
+        uses: $/
         with:
           skills: |
             github/awesome-copilot git-commit
@@ -74,7 +74,7 @@ jobs:
           persist-credentials: false
       - name: "\U0001F9EA Run setup-agent-skills with @pin"
         id: setup
-        uses: ./
+        uses: $/
         with:
           skills: |
             github/awesome-copilot git-commit@8fbf6c4a798df51d1d1d8fd37a1aa7e94203109c
@@ -116,7 +116,7 @@ jobs:
       - name: "\U0001F9EA Run setup-agent-skills with blank skills input (expected to fail)"
         id: setup
         continue-on-error: true
-        uses: ./
+        uses: $/
         with:
           skills: " \n# only a comment\n"
       - name: ✅ Verify step failed as expected
@@ -145,7 +145,7 @@ jobs:
       - name: "\U0001F9EA Run setup-agent-skills with an extra token (expected to fail)"
         id: setup
         continue-on-error: true
-        uses: ./
+        uses: $/
         with:
           skills: |
             github/awesome-copilot git-commit extra-token
@@ -174,7 +174,7 @@ jobs:
           persist-credentials: false
       - name: "\U0001F9EA Run setup-agent-skills for two agents"
         id: setup
-        uses: ./
+        uses: $/
         with:
           agents: |
             github-copilot
