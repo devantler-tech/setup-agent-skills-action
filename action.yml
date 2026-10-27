@@ -1,5 +1,5 @@
 name: Setup Agent Skills
-description: Install agent skills with the gh skill CLI from a newline list of "<owner/repo> <skill>[@pin]" entries, for one or more agents (e.g. github-copilot, claude-code)
+description: Install agent skills with the gh skill CLI for one or more agents, including GitHub Copilot and Claude Code.
 author: devantler-tech
 inputs:
   skills:

@@ -203,11 +203,16 @@ jobs:
   # ── .scripts/retry.sh (shared reliability helper) ──────────
   test-retry-script:
     timeout-minutes: 5
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     permissions:
       contents: read
     steps:
       - name: "\U0001F512 Harden Runner"
+        if: runner.os == 'Linux'
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
@@ -293,6 +298,9 @@ jobs:
           rm -f "$sleeplog"
 
           rm -f "$counter" "$flaky"
+      - name: Ensure the native test deadline command is available on macOS
+        if: runner.os == 'macOS'
+        run: command -v gtimeout >/dev/null || brew install coreutils
       - name: Verify native retry result and installer cancellation
         run: bash .github/tests/retry-result-native.sh
   # ── .scripts/ensure-gh-skill.sh (shared gh-skill bootstrap) ─
