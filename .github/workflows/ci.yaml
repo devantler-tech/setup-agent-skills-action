@@ -897,6 +897,8 @@ jobs:
           gh skill --help
       - name: Check the reviewed digest updater boundary
         run: bash .github/tests/test-gh-digest-updater.sh
+      - name: Verify protected release credentials
+        run: bash .github/tests/test-protected-release.sh
   # ── .scripts/gh-skill-install.sh (shared idempotent install helper) ─
   test-gh-skill-install-script:
     timeout-minutes: 5
