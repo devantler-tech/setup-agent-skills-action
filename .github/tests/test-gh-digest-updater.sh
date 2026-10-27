@@ -80,13 +80,14 @@ mkdir -p "$work/repo/.scripts" "$work/repo/.github/scripts" "$work/repo/.github/
 cp "$root/.scripts/refresh-gh-digests.sh" "$root/.scripts/gh-release-digests.tsv" "$work/repo/.scripts/"
 cp "$root/.github/scripts/prepare-gh-digest-update.sh" "$work/repo/.github/scripts/"
 cp "$root/action.yml" "$work/repo/"
+gh_version="$(yq -r '.inputs."gh-version".default' "$work/repo/action.yml")"
 if [[ -f "$root/.github/workflows/update-agent-skills.yaml" ]]; then
   cp "$root/.github/workflows/update-agent-skills.yaml" "$work/repo/.github/workflows/"
 fi
 cat >"$work/bin/curl" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
-[[ "$#" == 18 && "${18}" == https://github.com/cli/cli/releases/download/v2.90.0/gh_2.90.0_checksums.txt ]] || exit 90
+[[ "$#" == 18 && "${18}" == "https://github.com/cli/cli/releases/download/v${GH_FIXTURE_VERSION}/gh_${GH_FIXTURE_VERSION}_checksums.txt" ]] || exit 90
 printf called >>"$DOWNLOAD_CALLS"
 cp "$CHECKSUMS" "${17}"
 STUB
@@ -95,7 +96,7 @@ chmod +x "$work/bin/curl"
 for pair in 'linux amd64 tar.gz a' 'linux arm64 tar.gz b' 'macOS amd64 zip c' 'macOS arm64 zip d'; do
   # shellcheck disable=SC2086
   set -- $pair
-  printf '%s  gh_2.90.0_%s_%s.%s\n' "$(printf '%64s' '' | tr ' ' "$4")" "$1" "$2" "$3" >>"$work/sums"
+  printf '%s  gh_%s_%s_%s.%s\n' "$(printf '%64s' '' | tr ' ' "$4")" "$gh_version" "$1" "$2" "$3" >>"$work/sums"
 done
 git -C "$work/repo" init -q
 git -C "$work/repo" add .scripts/refresh-gh-digests.sh .scripts/gh-release-digests.tsv \
@@ -105,11 +106,11 @@ if [[ -f "$work/repo/.github/workflows/update-agent-skills.yaml" ]]; then
 fi
 git -C "$work/repo" -c user.name=Fixture -c user.email=fixture@example.invalid -c commit.gpgsign=false commit -qm fixture
 prepare() {
-  (cd "$work/repo" && PATH="$work/bin:$PATH" CHECKSUMS="$work/sums" DOWNLOAD_CALLS="$work/downloads" \
+  (cd "$work/repo" && PATH="$work/bin:$PATH" GH_FIXTURE_VERSION="$gh_version" CHECKSUMS="$work/sums" DOWNLOAD_CALLS="$work/downloads" \
     GITHUB_OUTPUT="$work/output" bash .github/scripts/prepare-gh-digest-update.sh) >"$work/log" 2>&1
 }
 prepare || { cat "$work/log"; fail 'healthy preparation failed'; }
-if ! grep -qx 'version=2.90.0' "$work/output" || ! grep -qx changed=true "$work/output"; then
+if ! grep -qx "version=$gh_version" "$work/output" || ! grep -qx changed=true "$work/output"; then
   fail 'wrong prepared version/outcome'
 fi
 [[ "$(git -C "$work/repo" diff --name-only)" == .scripts/gh-release-digests.tsv ]] || fail 'preparation changed another path'
