@@ -32,7 +32,7 @@ cat >"$tmp/bin/gh" <<'SH'
 set -euo pipefail
 # Reject an incorrect install request instead of accepting arbitrary mock calls.
 [[ $# == 10 || $# == 11 ]] || exit 98
-[[ $1 == skill && $2 == install && $3 == devantler-tech/agent-skills &&
+[[ $1 == skill && $2 == install && $3 == devantler-tech/agent-plugins &&
    $4 == ways-of-working && $5 == --agent && $6 == claude-code &&
    $7 == --scope && $8 == project && $9 == --pin && ${10} == v1.5.0 ]] || exit 98
 [[ $# == 10 || ${11} == --force ]] || exit 98
@@ -93,7 +93,7 @@ run_case() {
     export PATH="$tmp/bin:$PATH" CASE_DIR="$case_dir" SCENARIO="$scenario"
     export GITHUB_ACTION_PATH="$repo_root/."
     export GITHUB_OUTPUT="$case_dir/output" TMPDIR="$case_dir"
-    export INPUT_SKILLS='devantler-tech/agent-skills ways-of-working@v1.5.0'
+    export INPUT_SKILLS='devantler-tech/agent-plugins ways-of-working@v1.5.0'
     export INPUT_AGENTS=claude-code INPUT_SCOPE=project
     if [[ $flag == no-env ]]; then
       unset INPUT_EXPERIMENTAL_RATE_LIMIT_RETRY
@@ -114,7 +114,7 @@ run_case() {
     fail "$name: expected delays '$expected_delays', got '$actual_delays'"
   if [[ $expected_status == 0 ]]; then
     [[ -f "$case_dir/installed" ]] || fail "$name: no installation was completed"
-    [[ $(cat "$case_dir/output") == $'installed-skills<<EOF\ndevantler-tech/agent-skills/ways-of-working@v1.5.0\nEOF' ]] ||
+    [[ $(cat "$case_dir/output") == $'installed-skills<<EOF\ndevantler-tech/agent-plugins/ways-of-working@v1.5.0\nEOF' ]] ||
       fail "$name: action output must report the installed pinned skill exactly once"
   else
     [[ ! -e "$case_dir/installed" && ! -s "$case_dir/output" ]] ||
